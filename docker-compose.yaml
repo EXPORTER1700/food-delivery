@@ -1,0 +1,46 @@
+version: '3.8'
+
+volumes:
+  food-delivery-pgdata:
+
+services:
+  food-delivery-server:
+    container_name: food-delivery-server
+    build:
+      context: ./server
+      dockerfile: ./docker/${NODE_ENV}/Dockerfile
+    env_file:
+      - '.env.${NODE_ENV}'
+    volumes:
+      - ./server:/server
+      - ./server/node_modules:/server/node_modules
+    ports:
+      - '${SERVER_PORT}:${SERVER_PORT}'
+    restart: on-failure
+  food-delivery-client:
+    container_name: food-delivery-client
+    build:
+      context: ./client
+      dockerfile: ./docker/${NODE_ENV}/Dockerfile
+    env_file:
+      - '.env.${NODE_ENV}'
+    volumes:
+      - ./client:/client
+      - ./client/node_modules:/client/node_modules
+    ports:
+      - '${CLIENT_PORT}:${CLIENT_PORT}'
+    depends_on:
+      - food-delivery-server
+    restart: on-failure
+#  food-delivery-postgres:
+#    container_name: food-delivery-postgres
+#    image: postgres:14
+#    env_file:
+#      - '.env.${NODE_ENV}'
+#    environment:
+#      PG_DATA: /var/lib/postgresql/data
+#    ports:
+#      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+#    volumes:
+#      - food-delivery-pgdata:/var/lib/postgresql/data
+#    restart: on-failure
